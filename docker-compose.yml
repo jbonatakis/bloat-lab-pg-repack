@@ -1,0 +1,41 @@
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: docker/postgres-repack/Dockerfile
+      args:
+        PG_REPACK_VERSION: "1.5.0"
+    image: repack/postgres-repack:16
+    container_name: pg16-repack-lab
+    command: ["postgres", "-c", "autovacuum=off"]
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: repack_lab
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d repack_lab"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/init:/docker-entrypoint-initdb.d
+
+  pg_repack:
+    image: repack/postgres-repack:16
+    profiles: ["tools"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ["pg_repack"]
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: repack_lab
+
+volumes:
+  pgdata:
