@@ -1,5 +1,7 @@
 # pg_repack Bloat Lab (Postgres 16)
 
+Read the blog post: https://jack.bonatak.is/blah/table-bloat-pg-repack/
+
 This repo stands up PostgreSQL 16 with Docker Compose and generates heap bloat by:
 
 1. Disabling autovacuum at server start (`postgres -c autovacuum=off`).
